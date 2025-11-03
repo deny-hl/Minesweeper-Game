@@ -20,10 +20,36 @@ function startGame(WIDTH, HEIGHT, BOMBS_COUNT) {
       const index = cells.indexOf(event.target);
       const column = index % WIDTH;
       const row = Math.floor(index / WIDTH);
-      event.target.innerHTML = isBomb(row, column) ? '💣' : '✅';
+      open(row, column);
     });
 
+    function isValid(row, column) {
+      return row >= 0
+            && row < HEIGHT
+            && column >= 0
+            && column < WIDTH;
+    }
+
+    function getCount(row, column) {
+      let count = 0;
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+         if (isBomb(row + y, column + x)) {
+            count++;
+         }
+        }
+      }
+      return count;
+    }
+
+    function open(row, column) {
+      const index = row * WIDTH + column;
+      const cell = cells[index];
+      cell.innerHTML = isBomb(row, column) ? '💣' : getCount(row, column);
+      cell.target.disabled = true;
+    }
     function isBomb(row, column) {
+      if (!isValid(row, column)) return false;
       const index = row * WIDTH + column;
 
       return bombs.includes(index);
