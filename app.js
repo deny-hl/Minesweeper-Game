@@ -7,6 +7,8 @@ function startGame(WIDTH, HEIGHT, BOMBS_COUNT) {
   field.innerHTML = '<button></button>'.repeat(cellsCount);
   const cells = [...field.children];
 
+  let closedCounts = cellsCount;
+
   const bombs = [...Array(cellsCount).keys()]
     .sort(() => Math.random() - 0.5)
     .slice(0, BOMBS_COUNT);
@@ -43,10 +45,39 @@ function startGame(WIDTH, HEIGHT, BOMBS_COUNT) {
     }
 
     function open(row, column) {
+      if (!isValid(row, column)) return;
+
       const index = row * WIDTH + column;
       const cell = cells[index];
-      cell.innerHTML = isBomb(row, column) ? '💣' : getCount(row, column);
-      cell.target.disabled = true;
+
+      if (cell.disabled === true) return;
+
+      cell.disabled = true;
+
+      if (isBomb(row, column)) {
+        cell.innerHTML = '💣';
+        alert('Game Over');
+        return;
+      }
+
+      closedCounts--;
+      if (closedCoun <= BOMBS_COUNT) {
+        alert('You Win!');
+        return;
+      }
+
+      const count = getCount(row, column);
+
+      if (count !== 0) {
+        cell.innerHTML = count;
+        return;
+      }
+
+      for (let x = -1; x <= 1; x++) {
+        for (let y = -1; y <= 1; y++) {
+         open (row + y, column + x);
+        }
+      }
     }
     function isBomb(row, column) {
       if (!isValid(row, column)) return false;
